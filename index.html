@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AgentZero</title>
-<meta name="description" content="AgentZero makes your AI assistant remember your project and reuse ways of working you approved. Works with Cursor, Codex and Claude Code.">
+<title>AgentRoot</title>
+<meta name="description" content="AgentRoot makes your AI assistant remember your project and reuse ways of working you approved. Works with Cursor, Codex and Claude Code.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -219,13 +219,26 @@
   .turn .who { white-space: nowrap; }
   .nw { display: inline-block; white-space: nowrap; }
   html[lang="zh-CN"] h2 { text-wrap: balance; }
+
+  /* Use cases */
+  .cases { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px; align-items: start; }
+  .case-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .case-sub { margin: 0 0 16px; font-size: 15px; color: var(--text-mid); }
+  .cases .chat { margin-top: 0; }
+  .seg {
+    display: flex; align-items: center; gap: 8px; padding: 10px 16px 4px;
+    font: 500 12px/1 var(--mono); color: var(--text-mid);
+  }
+  .seg::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--text-low); }
+  .warn { color: #fca5a5; }
+  @media (max-width: 960px) { .cases { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="wrap">
-    <a class="brand" href="#"><span class="brand-mark">0</span>AgentZero</a>
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true">√</span>AgentRoot</a>
     <div class="nav-links">
       <a class="hide-sm" href="#how" data-i18n="nav.how">How it works</a>
       <a class="hide-sm" href="#tiers" data-i18n="nav.tiers">Tiers</a>
@@ -243,7 +256,7 @@
     <div>
       <span class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Open source · MIT</span></span>
       <h1 data-i18n="hero.h1">Your agent remembers the project.<br><span class="dim">Whichever agent you open.</span></h1>
-      <p class="lede" data-i18n="hero.lede">AgentZero makes an AI assistant remember your project and reuse ways of working you approved — without building a new agent product. Keep the chat tool you already use.</p>
+      <p class="lede" data-i18n="hero.lede">AgentRoot makes an AI assistant remember your project and reuse ways of working you approved — without building a new agent product. Keep the chat tool you already use.</p>
       <div class="cta">
         <a class="btn primary" href="#how" data-i18n="hero.cta1">See how it works</a>
       </div>
@@ -259,17 +272,43 @@
   <div class="wrap">
     <span class="kicker" data-i18n="how.kicker">What it looks like</span>
     <h2 data-i18n="how.h2">Say it once. It stays said.</h2>
-    <p class="sub" data-i18n="how.sub">State a fact in plain language. The assistant records it and tells you what it wrote. What it only guessed waits for your yes.</p>
+    <p class="sub" data-i18n="how.sub">State a rule or a fact in plain language. The assistant records it and tells you what it wrote. What it only guessed waits for your yes.</p>
 
-    <div class="chat" role="img" data-i18n-aria="how.chatLabel" aria-label="An example conversation across two chats a week apart">
-      <div class="chat-head"><span data-i18n="how.chatHead">workspace · chat</span><span data-i18n="how.chatTag">illustrative</span></div>
-      <div class="chat-body">
-        <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="chat.1">We measure everything in millimetres, and the client is Acme.</span></div>
-        <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="chat.2"><span class="rec">Remembered:</span> "The project measures in millimetres."<br><span class="rec">Remembered:</span> "The client is Acme."</span></div>
-        <div class="gap" data-i18n="chat.gap">… a new chat, next week …</div>
-        <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="chat.3">Summarise the wall schedule.</span></div>
-        <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="chat.4">(reads Memory first) Here it is, in millimetres as you told me. …<br><span class="ask">I noticed Acme prefers PDF reports. Keep that as a project fact?</span></span></div>
-        <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="chat.5">Yes.</span></div>
+    <div class="cases">
+      <div class="case">
+        <h3 class="case-title" data-i18n="c1.title">Your rules, every time.</h3>
+        <p class="case-sub" data-i18n="c1.sub">Set the house rules once. Weeks and dozens of chats later, in another agent, they still hold.</p>
+        <div class="chat" role="img" data-i18n-aria="c1.aria" aria-label="Rules set in Cursor, followed four weeks later in Codex">
+          <div class="chat-head"><span data-i18n="c1.head">Case 1</span><span data-i18n="how.chatTag">illustrative</span></div>
+          <div class="chat-body">
+          <div class="seg" data-i18n="c1.seg1">Cursor · Sep 29</div>
+          <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="c1.1">House rules for this project: every task gets an owner and a due date. Never pick an owner yourself — ask me. Status updates list risks first.</span></div>
+          <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="c1.2"><span class="rec">Remembered:</span> "Every task has an owner and a due date."<br><span class="rec">Remembered:</span> "Never assign an owner without asking."<br><span class="rec">Remembered:</span> "Status updates list risks first."</span></div>
+          <div class="gap" data-i18n="c1.gap">… four weeks and thirty chats later …</div>
+          <div class="seg" data-i18n="c1.seg2">Codex · Oct 27</div>
+          <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="c1.3">Turn today's meeting notes into tasks.</span></div>
+          <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="c1.4">(reads Memory first) 9 tasks, each with an owner and a due date.<br><span class="ask">2 have no owner in the notes: "Update pricing page" and "Renew SSL certificate". Who takes them? I didn't guess.</span></span></div>
+          <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="c1.5">Mei, both.</span></div>
+          <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="c1.6">Done. Status, risks first: the SSL certificate expires Nov 1.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="case">
+        <h3 class="case-title" data-i18n="c2.title">It catches what you'd miss.</h3>
+        <p class="case-sub" data-i18n="c2.sub">Something said in passing two weeks ago stops a mistake today — and it shows you where it came from.</p>
+        <div class="chat" role="img" data-i18n-aria="c2.aria" aria-label="A rule set in Cursor stops a mistake two weeks later in Claude Code">
+          <div class="chat-head"><span data-i18n="c2.head">Case 2</span><span data-i18n="how.chatTag">illustrative</span></div>
+          <div class="chat-body">
+          <div class="seg" data-i18n="c2.seg1">Cursor · Oct 13</div>
+          <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="c2.1">The client moved the beta to Nov 3. And nothing goes to customers before Legal signs off — Dana signs.</span></div>
+          <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="c2.2"><span class="rec">Updated:</span> "The beta is on Nov 3." (was Oct 20)<br><span class="rec">Remembered:</span> "Nothing goes to customers before Legal signs off."<br><span class="rec">Remembered:</span> "Dana signs off for Legal."</span></div>
+          <div class="gap" data-i18n="c2.gap">… two weeks later …</div>
+          <div class="seg" data-i18n="c2.seg2">Claude Code · Oct 27</div>
+          <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="c2.3">Plan this week's release.</span></div>
+          <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="c2.4">(reads Memory first) Six steps, working back from Nov 3.<br><span class="warn">⚠ Step 4 sends the build to two pilot customers. On Oct 13 you said: "nothing goes to customers before Legal signs off." I moved Dana's sign-off ahead of it.</span><br><span class="ask">Every plan you approved kept a day of buffer before a deadline. Keep that as a rule?</span></span></div>
+          <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="c2.5">Yes.</span></div>
+          </div>
+        </div>
       </div>
     </div>
     <p class="note" data-i18n="how.note">Nothing above needed a file edit. The exact wording depends on your model.</p>
@@ -281,7 +320,7 @@
     <div>
       <span class="kicker" data-i18n="three.kicker">Three things, kept apart</span>
       <h2 data-i18n="three.h2">What's true, how you work, who it helps.</h2>
-      <p class="sub" data-i18n="three.sub">Most agent chats forget everything between sessions. Prompt dumps and hand-edited YAML try to fix that, and become someone's maintenance burden. AgentZero stores each concern in its own place, as flat files you can read.</p>
+      <p class="sub" data-i18n="three.sub">Most agent chats forget everything between sessions. Prompt dumps and hand-edited YAML try to fix that, and become someone's maintenance burden. AgentRoot stores each concern in its own place, as flat files you can read.</p>
     </div>
     <div class="figure-frame">
       <div class="fig" data-figure="cabinet" data-i18n-label="fig.cabinet" data-label="A rack of twelve blades: Memory kept as short facts"></div>
@@ -391,7 +430,7 @@ agentzero init ~/AgentZero-Workspace --harness claude</pre>
 
 <footer>
   <div class="wrap">
-    <span>AgentZero · MIT</span>
+    <span>AgentRoot · MIT</span>
     <span data-i18n="footer.credit">Figures by <a href="https://hairline.lucasmarkes.com" style="text-decoration: underline;">Hairline</a></span>
   </div>
 </footer>
@@ -400,34 +439,51 @@ agentzero init ~/AgentZero-Workspace --harness claude</pre>
   import * as hairline from "https://cdn.jsdelivr.net/npm/@lucasmarkes/hairline@0.5.0/dist/index.js";
 
   const ZH = {
-    "meta.description": "AgentZero 让 AI 助手记住你的项目，并复用你认可过的工作方式。支持 Cursor、Codex 和 Claude Code。",
+    "meta.description": "AgentRoot 让 AI 助手记住你的项目，并复用你认可过的工作方式。支持 Cursor、Codex 和 Claude Code。",
     "nav.how": "工作原理",
     "nav.tiers": "能力分层",
     "nav.start": "快速开始",
     "hero.eyebrow": "开源 · MIT",
     "hero.h1": "<span class=\"nw\">你的 agent</span> <span class=\"nw\">记得这个项目。</span><br><span class=\"dim\"><span class=\"nw\">换哪个 agent</span> <span class=\"nw\">都记得。</span></span>",
-    "hero.lede": "AgentZero 让 AI 助手记住你的项目，并复用你认可过的工作方式。你不用再做一个新的 agent 产品，继续用手边的聊天工具就行。",
+    "hero.lede": "AgentRoot 让 AI 助手记住你的项目，并复用你认可过的工作方式。你不用再做一个新的 agent 产品，继续用手边的聊天工具就行。",
     "hero.cta1": "看看怎么用",
     "hero.harnesses": "支持 <b>Cursor</b>、<b>Codex</b> 和 <b>Claude Code</b>",
     "fig.hub": "中间一个枢纽，周围八块：一份记忆，连着多个 agent",
     "how.kicker": "它是什么样子",
     "how.h2": "说一次，就一直记得。",
-    "how.sub": "用日常语言说出一个事实。助手会记下来，并告诉你它写了什么。它自己猜的内容，要等你说“是”才保留。",
-    "how.chatLabel": "相隔一周的两段示例对话",
-    "how.chatHead": "工作区 · 对话",
+    "how.sub": "用日常语言说出一条规矩或一个事实。助手会记下来，并告诉你它写了什么。它自己猜的内容，要等你说“是”才保留。",
     "how.chatTag": "仅为示意",
     "chat.you": "你",
     "chat.agent": "助手",
-    "chat.1": "这个项目全部用毫米，客户是 Acme。",
-    "chat.2": "<span class=\"rec\">已记住：</span>“项目使用毫米。”<br><span class=\"rec\">已记住：</span>“客户是 Acme。”",
-    "chat.gap": "…… 下周，新开一个对话 ……",
-    "chat.3": "帮我总结一下墙体明细表。",
-    "chat.4": "（先读取 Memory）按你说的，全部用毫米，结果如下……<br><span class=\"ask\">我注意到 Acme 偏好 PDF 格式的报告。要把它记成项目事实吗？</span>",
-    "chat.5": "要。",
+    "c1.title": "你的规矩，每次都照做。",
+    "c1.sub": "规矩只说一次。几周、几十个对话之后，换了 agent，它照样遵守。",
+    "c1.aria": "在 Cursor 里定的规矩，四周后在 Codex 里照做",
+    "c1.head": "用例 1",
+    "c1.seg1": "Cursor · 9 月 29 日",
+    "c1.1": "这个项目的规矩：每个任务都要有负责人和截止日期。负责人不要你自己定，问我。状态汇报先列风险。",
+    "c1.2": "<span class=\"rec\">已记住：</span>“每个任务都有负责人和截止日期。”<br><span class=\"rec\">已记住：</span>“不经询问，不指定负责人。”<br><span class=\"rec\">已记住：</span>“状态汇报先列风险。”",
+    "c1.gap": "…… 四周、三十个对话之后 ……",
+    "c1.seg2": "Codex · 10 月 27 日",
+    "c1.3": "把今天的会议记录整理成任务。",
+    "c1.4": "（先读取 Memory）共 9 个任务，每个都有负责人和截止日期。<br><span class=\"ask\">有 2 个在记录里没有负责人：“更新定价页”和“续期 SSL 证书”。谁来负责？我没有替你猜。</span>",
+    "c1.5": "都给 Mei。",
+    "c1.6": "好了。状态汇报，先列风险：SSL 证书 11 月 1 日到期。",
+    "c2.title": "你会漏掉的，它帮你拦住。",
+    "c2.sub": "两周前随口说的一句话，今天拦住了一个错误，还告诉你依据是什么。",
+    "c2.aria": "在 Cursor 里说的规矩，两周后在 Claude Code 里拦住一个错误",
+    "c2.head": "用例 2",
+    "c2.seg1": "Cursor · 10 月 13 日",
+    "c2.1": "客户把 beta 推到 11 月 3 日了。还有，法务签字之前，任何东西都不能发给客户，签字由 Dana 负责。",
+    "c2.2": "<span class=\"rec\">已更新：</span>“beta 日期是 11 月 3 日。”（原来是 10 月 20 日）<br><span class=\"rec\">已记住：</span>“法务签字之前，任何东西都不发给客户。”<br><span class=\"rec\">已记住：</span>“法务签字由 Dana 负责。”",
+    "c2.gap": "…… 两周之后 ……",
+    "c2.seg2": "Claude Code · 10 月 27 日",
+    "c2.3": "排一下这周的发布计划。",
+    "c2.4": "（先读取 Memory）已从 11 月 3 日倒推排好，共 6 步。<br><span class=\"warn\">⚠ 第 4 步要把测试版发给两家试点客户。你在 10 月 13 日说过：“法务签字之前，任何东西都不能发给客户。”我把 Dana 的签字排到了它前面。</span><br><span class=\"ask\">你批准过的计划，在截止日前都留了一天缓冲。要把这条记成规则吗？</span>",
+    "c2.5": "要。",
     "how.note": "以上过程都不需要你改文件。具体措辞取决于你用的模型。",
     "three.kicker": "三件事，分开存",
     "three.h2": "什么是真的，怎么做事，在帮谁。",
-    "three.sub": "大多数 agent 对话在会话之间会忘掉一切。塞一大段提示词、手工改 YAML，都想解决这个问题，最后常常变成别人的维护负担。AgentZero 把每件事放在各自的位置，存成你能直接读的文件。",
+    "three.sub": "大多数 agent 对话在会话之间会忘掉一切。塞一大段提示词、手工改 YAML，都想解决这个问题，最后常常变成别人的维护负担。AgentRoot 把每件事放在各自的位置，存成你能直接读的文件。",
     "fig.cabinet": "一排十二个刀片：Memory 存成简短的事实",
     "three.q1": "关于这个项目，什么是真的",
     "three.h1": "Memory（记忆）",
