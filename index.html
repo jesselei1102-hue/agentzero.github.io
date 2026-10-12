@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentZero</title>
+<meta name="description" content="AgentZero makes your AI assistant remember your project and reuse ways of working you approved. Works with Cursor, Codex and Claude Code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08090a;
+    --bg-raised: #0f1012;
+    --line: #1c1d21;
+    --line-strong: #2a2b30;
+    --text: #f4f4f5;
+    --text-mid: #a1a1aa;
+    --text-low: #6b6b74;
+    --accent: #d4d4d8;
+    --ok: #86efac;
+    --wait: #fcd34d;
+
+    --hairline-plate: var(--bg);
+    --hairline-hi: #fafafa;
+    --hairline-edge: #a1a1aa;
+    --hairline-mid: #52525b;
+    --hairline-lo: #27272a;
+    --hairline-stroke: 0.9;
+
+    --sans: "Inter", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --gutter: clamp(16px, 4vw, 40px);
+    --max: 1120px;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 400 16px/1.6 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  code, pre { font-family: var(--mono); }
+
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.01em; }
+  .brand-mark {
+    width: 20px; height: 20px; border: 1px solid var(--text-mid); border-radius: 5px;
+    display: grid; place-items: center; font: 500 11px/1 var(--mono); color: var(--text);
+  }
+  .nav-links { display: flex; gap: 24px; font-size: 14px; color: var(--text-mid); }
+  .nav-links a:hover { color: var(--text); }
+  @media (max-width: 640px) { .nav-links .hide-sm { display: none; } }
+
+  /* Hero */
+  .hero { padding: 72px 0 40px; }
+  .hero .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .eyebrow {
+    display: inline-flex; gap: 8px; align-items: center;
+    font: 500 12px/1 var(--mono); color: var(--text-mid);
+    border: 1px solid var(--line-strong); border-radius: 999px; padding: 6px 10px;
+  }
+  .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+  h1 {
+    font-size: clamp(36px, 5.4vw, 60px); line-height: 1.04; letter-spacing: -0.035em;
+    font-weight: 600; margin: 20px 0 20px;
+  }
+  h1 .dim { color: var(--text-low); }
+  .lede { font-size: 18px; color: var(--text-mid); max-width: 34em; margin: 0 0 32px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px;
+    border-radius: 8px; font-size: 14px; font-weight: 500;
+    border: 1px solid var(--line-strong); color: var(--text);
+  }
+  .btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .btn:hover { border-color: var(--text-mid); }
+  .harnesses { margin-top: 28px; font-size: 13px; color: var(--text-low); }
+  .harnesses b { color: var(--text-mid); font-weight: 500; }
+
+  .figure-frame { position: relative; }
+  .figure-frame .fig { width: 100%; }
+  .readout {
+    position: absolute; left: 0; bottom: -4px;
+    font: 400 12px/1 var(--mono); color: var(--text-low);
+  }
+
+  /* Sections */
+  section { border-top: 1px solid var(--line); padding: 96px 0; }
+  .kicker { font: 500 12px/1 var(--mono); color: var(--text-low); text-transform: uppercase; letter-spacing: 0.08em; }
+  h2 {
+    font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -0.025em;
+    font-weight: 600; margin: 14px 0 16px;
+  }
+  .sub { color: var(--text-mid); font-size: 17px; max-width: 36em; margin: 0; }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  .split.flip > :first-child { order: 2; }
+
+  /* Chat transcript */
+  .chat {
+    margin-top: 40px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-raised);
+    overflow: hidden;
+  }
+  .chat-head {
+    display: flex; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--line);
+    font: 400 12px/1 var(--mono); color: var(--text-low);
+  }
+  .chat-body { padding: 8px 0; font: 400 14px/1.6 var(--mono); }
+  .turn { display: grid; grid-template-columns: 64px 1fr; gap: 12px; padding: 6px 16px; }
+  .who { color: var(--text-low); }
+  .turn.agent .msg { color: var(--text-mid); }
+  .rec { color: var(--ok); }
+  .ask { color: var(--wait); }
+  .gap {
+    text-align: center; color: var(--text-low); font: 400 12px/1 var(--mono);
+    padding: 16px 0; margin: 8px 0; border-top: 1px dashed var(--line); border-bottom: 1px dashed var(--line);
+  }
+  .note { margin-top: 16px; font-size: 14px; color: var(--text-low); }
+
+  /* Three things */
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 40px; }
+  .three > div { background: var(--bg); padding: 28px; }
+  .three .q { font-size: 14px; color: var(--text-low); margin: 0 0 10px; }
+  .three h3 { font-size: 18px; margin: 0 0 8px; font-weight: 600; letter-spacing: -0.01em; }
+  .three p { margin: 0; color: var(--text-mid); font-size: 15px; }
+
+  /* Tier list */
+  .tiers { list-style: none; padding: 0; margin: 32px 0 0; border-top: 1px solid var(--line); }
+  .tiers li {
+    display: grid; grid-template-columns: 40px 1fr; gap: 12px; padding: 14px 0;
+    border-bottom: 1px solid var(--line); transition: color .2s;
+    color: var(--text-low);
+  }
+  .tiers li .t { font: 500 13px/1.6 var(--mono); }
+  .tiers li b { display: block; font-weight: 500; color: var(--text-mid); transition: color .2s; }
+  .tiers li span { font-size: 14px; }
+  .tiers li.on { color: var(--text-mid); }
+  .tiers li.on b { color: var(--text); }
+  .tiers li.on .t { color: var(--ok); }
+
+  /* Loop */
+  .loop { list-style: none; padding: 0; margin: 32px 0 0; counter-reset: s; }
+  .loop li { display: grid; grid-template-columns: 120px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--text-mid); }
+  .loop li b { color: var(--text); font-weight: 500; }
+
+  /* Code */
+  .code {
+    margin: 32px 0 0; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-raised);
+    position: relative;
+  }
+  .code pre { margin: 0; padding: 20px; overflow-x: auto; font-size: 14px; line-height: 1.7; color: var(--accent); }
+  .code .c { color: var(--text-low); }
+  .copy {
+    position: absolute; top: 10px; right: 10px; height: 28px; padding: 0 10px;
+    background: var(--bg); color: var(--text-mid); border: 1px solid var(--line-strong);
+    border-radius: 6px; font: 500 12px/1 var(--sans); cursor: pointer;
+  }
+  .copy:hover { color: var(--text); }
+  .steps { margin: 32px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; }
+  .steps li { font-size: 15px; color: var(--text-mid); }
+  .steps li b { display: block; color: var(--text); font-weight: 500; margin-bottom: 4px; }
+  .steps code { font-size: 13px; color: var(--text); }
+
+  /* Principles */
+  .principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 32px 40px; margin-top: 40px; }
+  .principles h3 { font-size: 16px; margin: 0 0 6px; font-weight: 600; }
+  .principles p { margin: 0; color: var(--text-mid); font-size: 15px; }
+  .principles .n { font: 500 12px/1 var(--mono); color: var(--text-low); display: block; margin-bottom: 12px; }
+
+  .not { margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .not div { border: 1px dashed var(--line-strong); border-radius: 10px; padding: 18px 20px; font-size: 15px; color: var(--text-mid); }
+  .not b { color: var(--text); font-weight: 500; }
+
+  footer { border-top: 1px solid var(--line); padding: 40px 0 56px; color: var(--text-low); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; }
+
+  @media (max-width: 860px) {
+    .hero { padding-top: 48px; }
+    .hero .wrap, .split { grid-template-columns: 1fr; gap: 32px; }
+    .split.flip > :first-child { order: 0; }
+    .three { grid-template-columns: 1fr; }
+    section { padding: 72px 0; }
+    .loop li { grid-template-columns: 1fr; gap: 2px; }
+  }
+  @media (max-width: 520px) {
+    .turn { grid-template-columns: 1fr; gap: 0; }
+    .chat-body { font-size: 13px; }
+  }
+
+  /* Language switch */
+  .lang { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 6px; overflow: hidden; }
+  .lang button {
+    height: 26px; padding: 0 9px; background: none; border: 0; cursor: pointer;
+    font: 500 12px/1 var(--sans); color: var(--text-low);
+  }
+  .lang button + button { border-left: 1px solid var(--line-strong); }
+  .lang button[aria-pressed="true"] { background: var(--line-strong); color: var(--text); }
+  .lang button:hover { color: var(--text); }
+  .nav-links { align-items: center; }
+  @media (max-width: 640px) { .nav-links { gap: 16px; } }
+
+  /* Chinese reads better without tight tracking and with a little more leading. */
+  html[lang="zh-CN"] h1, html[lang="zh-CN"] h2 { letter-spacing: 0; line-height: 1.2; }
+  html[lang="zh-CN"] .kicker { letter-spacing: 0.04em; }
+  .turn .who { white-space: nowrap; }
+  .nw { display: inline-block; white-space: nowrap; }
+  html[lang="zh-CN"] h2 { text-wrap: balance; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#"><span class="brand-mark">0</span>AgentZero</a>
+    <div class="nav-links">
+      <a class="hide-sm" href="#how" data-i18n="nav.how">How it works</a>
+      <a class="hide-sm" href="#tiers" data-i18n="nav.tiers">Tiers</a>
+      <a href="#start" data-i18n="nav.start" hidden>Quick start</a>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="zh" aria-pressed="false">中文</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow"><span class="dot"></span><span data-i18n="hero.eyebrow">Open source · MIT</span></span>
+      <h1 data-i18n="hero.h1">Your agent remembers the project.<br><span class="dim">Whichever agent you open.</span></h1>
+      <p class="lede" data-i18n="hero.lede">AgentZero makes an AI assistant remember your project and reuse ways of working you approved — without building a new agent product. Keep the chat tool you already use.</p>
+      <div class="cta">
+        <a class="btn primary" href="#how" data-i18n="hero.cta1">See how it works</a>
+      </div>
+      <p class="harnesses" data-i18n="hero.harnesses">Works with <b>Cursor</b>, <b>Codex</b> and <b>Claude Code</b></p>
+    </div>
+    <div class="figure-frame">
+      <div class="fig" data-figure="hub" data-i18n-label="fig.hub" data-label="A hub with eight tiles around it: one memory, many agents"></div>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap">
+    <span class="kicker" data-i18n="how.kicker">What it looks like</span>
+    <h2 data-i18n="how.h2">Say it once. It stays said.</h2>
+    <p class="sub" data-i18n="how.sub">State a fact in plain language. The assistant records it and tells you what it wrote. What it only guessed waits for your yes.</p>
+
+    <div class="chat" role="img" data-i18n-aria="how.chatLabel" aria-label="An example conversation across two chats a week apart">
+      <div class="chat-head"><span data-i18n="how.chatHead">workspace · chat</span><span data-i18n="how.chatTag">illustrative</span></div>
+      <div class="chat-body">
+        <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="chat.1">We measure everything in millimetres, and the client is Acme.</span></div>
+        <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="chat.2"><span class="rec">Remembered:</span> "The project measures in millimetres."<br><span class="rec">Remembered:</span> "The client is Acme."</span></div>
+        <div class="gap" data-i18n="chat.gap">… a new chat, next week …</div>
+        <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="chat.3">Summarise the wall schedule.</span></div>
+        <div class="turn agent"><span class="who" data-i18n="chat.agent">Agent</span><span class="msg" data-i18n="chat.4">(reads Memory first) Here it is, in millimetres as you told me. …<br><span class="ask">I noticed Acme prefers PDF reports. Keep that as a project fact?</span></span></div>
+        <div class="turn"><span class="who" data-i18n="chat.you">You</span><span class="msg" data-i18n="chat.5">Yes.</span></div>
+      </div>
+    </div>
+    <p class="note" data-i18n="how.note">Nothing above needed a file edit. The exact wording depends on your model.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split">
+    <div>
+      <span class="kicker" data-i18n="three.kicker">Three things, kept apart</span>
+      <h2 data-i18n="three.h2">What's true, how you work, who it helps.</h2>
+      <p class="sub" data-i18n="three.sub">Most agent chats forget everything between sessions. Prompt dumps and hand-edited YAML try to fix that, and become someone's maintenance burden. AgentZero stores each concern in its own place, as flat files you can read.</p>
+    </div>
+    <div class="figure-frame">
+      <div class="fig" data-figure="cabinet" data-i18n-label="fig.cabinet" data-label="A rack of twelve blades: Memory kept as short facts"></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="three">
+      <div>
+        <p class="q" data-i18n="three.q1">What's true about this project</p>
+        <h3 data-i18n="three.h1">Memory</h3>
+        <p data-i18n="three.p1">Short one-sentence facts. What you say is active at once; you can withdraw any of them.</p>
+      </div>
+      <div>
+        <p class="q" data-i18n="three.q2">How we usually do this kind of work</p>
+        <h3 data-i18n="three.h2b">Skills</h3>
+        <p data-i18n="three.p2">Procedures, kept only after you confirm them. A scored run that does worse sends one back.</p>
+      </div>
+      <div>
+        <p class="q" data-i18n="three.q3">Who the assistant is helping</p>
+        <h3 data-i18n="three.h3">Role</h3>
+        <p data-i18n="three.p3">Identity and lens, not a step-by-step manual. General by default.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split flip">
+    <div>
+      <span class="kicker" data-i18n="loop.kicker">Confirm before keep</span>
+      <h2 data-i18n="loop.h2">Guesswork waits for your yes.</h2>
+      <p class="sub" data-i18n="loop.sub">Nothing becomes a kept procedure without your confirmation. The assistant offers what is waiting, at most three at a time, at the start and end of a run.</p>
+      <ol class="loop">
+        <li><b data-i18n="loop.1b">Discover</b><span data-i18n="loop.1">Role, Knowledge, the Memory hot set, the tools connected now</span></li>
+        <li><b data-i18n="loop.2b">Execute</b><span data-i18n="loop.2">A matching confirmed Skill, else a builtin</span></li>
+        <li><b data-i18n="loop.3b">Remember</b><span data-i18n="loop.3">What you said goes active; what it inferred stays proposed</span></li>
+        <li><b data-i18n="loop.4b">Confirm</b><span data-i18n="loop.4"><code>memory review</code> is the gate; nothing activates itself</span></li>
+        <li><b data-i18n="loop.5b">Reuse</b><span data-i18n="loop.5">Next time, Memory and the Skill load; tools re-bind to what is connected</span></li>
+      </ol>
+    </div>
+    <div class="figure-frame">
+      <div class="fig" data-figure="settle" data-i18n-label="fig.settle" data-label="Crooked tiles settle into a tree: proposals becoming kept structure"></div>
+    </div>
+  </div>
+</section>
+
+<section id="tiers">
+  <div class="wrap split">
+    <div>
+      <span class="kicker" data-i18n="tiers.kicker">How capability stacks</span>
+      <h2 data-i18n="tiers.h2">Climb when you need to. Nothing breaks if you don't.</h2>
+      <p class="sub" data-i18n="tiers.sub">Each level sits on the one below. A missing level weakens only itself — no MCP and no Score still leave builtins and Memory useful.</p>
+      <ol class="tiers" id="tier-list">
+        <li data-tier="5"><span class="t">T5</span><div><b data-i18n="t5b">Trace + Score</b><span data-i18n="t5">Score each run against a signed Answer key</span></div></li>
+        <li data-tier="4"><span class="t">T4</span><div><b data-i18n="t4b">MCP tools</b><span data-i18n="t4">Optional live tools, re-discovered each run</span></div></li>
+        <li data-tier="3"><span class="t">T3</span><div><b data-i18n="t3b">Confirmed Skills</b><span data-i18n="t3">Repeatable procedures you explicitly approved</span></div></li>
+        <li data-tier="2"><span class="t">T2</span><div><b data-i18n="t2b">Memory</b><span data-i18n="t2">Project facts persist across sessions</span></div></li>
+        <li data-tier="1"><span class="t">T1</span><div><b data-i18n="t1b">Builtins + work/</b><span data-i18n="t1">Research, Analyze, Brainstorm, Report out of the box</span></div></li>
+      </ol>
+    </div>
+    <div class="figure-frame">
+      <div class="fig" data-figure="stack" data-i18n-label="fig.stack" data-label="A stack of five frames: the five capability tiers"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Hidden until the install command works for others (repo is private). Remove `hidden` to restore. -->
+<section id="start" hidden>
+  <div class="wrap">
+    <span class="kicker" data-i18n="start.kicker">Quick start</span>
+    <h2 data-i18n="start.h2">Two commands, then open the folder.</h2>
+    <p class="sub" data-i18n="start.sub">Requires Python 3.11+. Install the <code>agentzero</code> command once — no clone needed.</p>
+    <div class="code">
+      <button class="copy" type="button" data-copy="install" data-i18n="copy.idle">Copy</button>
+      <pre id="install" data-i18n="start.code"><span class="c"># install once (pipx install works the same)</span>
+uv tool install git+https://github.com/jesselei1102-hue/agentzero
+
+<span class="c"># make a workspace for your tool: cursor | codex | claude</span>
+agentzero init ~/AgentZero-Workspace --harness claude</pre>
+    </div>
+    <ol class="steps">
+      <li><b data-i18n="s1b">Give tasks in plain language.</b><span data-i18n="s1">No new commands to learn for day-to-day work.</span></li>
+      <li><b data-i18n="s2b">State facts as you go.</b><span data-i18n="s2">"We use millimetres." Say "forget that" to withdraw one.</span></li>
+      <li><b data-i18n="s3b">Answer what's waiting.</b><span data-i18n="s3"><code>./a0 memory review</code> lists it as sentences.</span></li>
+      <li><b data-i18n="s4b">Hand over references.</b><span data-i18n="s4">Standards and templates become Knowledge later chats can use.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <span class="kicker" data-i18n="pr.kicker">Design principles</span>
+    <h2 data-i18n="pr.h2">Conventions, not a new runtime.</h2>
+    <div class="principles">
+      <div><span class="n">01</span><h3 data-i18n="pr.1b">Convention over runtime</h3><p data-i18n="pr.1">Adapts onto the harness you have. The agent loop stays in Cursor, Codex or Claude Code.</p></div>
+      <div><span class="n">02</span><h3 data-i18n="pr.2b">Confirm before keep</h3><p data-i18n="pr.2">Proposed until you say yes. Reuse must not quietly degrade.</p></div>
+      <div><span class="n">03</span><h3 data-i18n="pr.3b">Operator-visible files</h3><p data-i18n="pr.3">Flat YAML and Markdown you can audit. No hidden control plane.</p></div>
+      <div><span class="n">04</span><h3 data-i18n="pr.4b">Domain-agnostic core</h3><p data-i18n="pr.4">The first proof is not the product boundary.</p></div>
+      <div><span class="n">05</span><h3 data-i18n="pr.5b">Tiers degrade independently</h3><p data-i18n="pr.5">Skip a level and only that level is gone.</p></div>
+    </div>
+    <div class="not">
+      <div data-i18n="not.1"><b>Not a new agent runtime.</b> The LLM loop stays where it is.</div>
+      <div data-i18n="not.2"><b>Not an SDK-first product.</b> Files and chat are the surface; <code>src/</code> is there if you want to dig.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>AgentZero · MIT</span>
+    <span data-i18n="footer.credit">Figures by <a href="https://hairline.lucasmarkes.com" style="text-decoration: underline;">Hairline</a></span>
+  </div>
+</footer>
+
+<script type="module">
+  import * as hairline from "https://cdn.jsdelivr.net/npm/@lucasmarkes/hairline@0.5.0/dist/index.js";
+
+  const ZH = {
+    "meta.description": "AgentZero 让 AI 助手记住你的项目，并复用你认可过的工作方式。支持 Cursor、Codex 和 Claude Code。",
+    "nav.how": "工作原理",
+    "nav.tiers": "能力分层",
+    "nav.start": "快速开始",
+    "hero.eyebrow": "开源 · MIT",
+    "hero.h1": "<span class=\"nw\">你的 agent</span> <span class=\"nw\">记得这个项目。</span><br><span class=\"dim\"><span class=\"nw\">换哪个 agent</span> <span class=\"nw\">都记得。</span></span>",
+    "hero.lede": "AgentZero 让 AI 助手记住你的项目，并复用你认可过的工作方式。你不用再做一个新的 agent 产品，继续用手边的聊天工具就行。",
+    "hero.cta1": "看看怎么用",
+    "hero.harnesses": "支持 <b>Cursor</b>、<b>Codex</b> 和 <b>Claude Code</b>",
+    "fig.hub": "中间一个枢纽，周围八块：一份记忆，连着多个 agent",
+    "how.kicker": "它是什么样子",
+    "how.h2": "说一次，就一直记得。",
+    "how.sub": "用日常语言说出一个事实。助手会记下来，并告诉你它写了什么。它自己猜的内容，要等你说“是”才保留。",
+    "how.chatLabel": "相隔一周的两段示例对话",
+    "how.chatHead": "工作区 · 对话",
+    "how.chatTag": "仅为示意",
+    "chat.you": "你",
+    "chat.agent": "助手",
+    "chat.1": "这个项目全部用毫米，客户是 Acme。",
+    "chat.2": "<span class=\"rec\">已记住：</span>“项目使用毫米。”<br><span class=\"rec\">已记住：</span>“客户是 Acme。”",
+    "chat.gap": "…… 下周，新开一个对话 ……",
+    "chat.3": "帮我总结一下墙体明细表。",
+    "chat.4": "（先读取 Memory）按你说的，全部用毫米，结果如下……<br><span class=\"ask\">我注意到 Acme 偏好 PDF 格式的报告。要把它记成项目事实吗？</span>",
+    "chat.5": "要。",
+    "how.note": "以上过程都不需要你改文件。具体措辞取决于你用的模型。",
+    "three.kicker": "三件事，分开存",
+    "three.h2": "什么是真的，怎么做事，在帮谁。",
+    "three.sub": "大多数 agent 对话在会话之间会忘掉一切。塞一大段提示词、手工改 YAML，都想解决这个问题，最后常常变成别人的维护负担。AgentZero 把每件事放在各自的位置，存成你能直接读的文件。",
+    "fig.cabinet": "一排十二个刀片：Memory 存成简短的事实",
+    "three.q1": "关于这个项目，什么是真的",
+    "three.h1": "Memory（记忆）",
+    "three.p1": "简短的一句话事实。你说的立刻生效，也可以随时撤回。",
+    "three.q2": "这类活通常怎么做",
+    "three.h2b": "Skills（技能）",
+    "three.p2": "做事的方法，你确认后才保留。有评分的运行如果得分变低，它会退回待确认。",
+    "three.q3": "助手在帮谁",
+    "three.h3": "Role（角色）",
+    "three.p3": "身份和视角，不是一步步的操作手册。默认是通用角色。",
+    "loop.kicker": "先确认，再保留",
+    "loop.h2": "猜测要等你说“是”。",
+    "loop.sub": "没有你的确认，任何做法都不会被保留。助手会在一次运行开始和结束时，把待确认的事拿给你看，每次最多三条。",
+    "loop.1b": "发现",
+    "loop.1": "Role、Knowledge、Memory 热集合、当前连接的工具",
+    "loop.2b": "执行",
+    "loop.2": "有匹配的已确认 Skill 就用它，否则用内置技能",
+    "loop.3b": "记住",
+    "loop.3": "你说的立即生效；它推断的保持待确认",
+    "loop.4b": "确认",
+    "loop.4": "<code>memory review</code> 是关卡；没有东西会自己生效",
+    "loop.5b": "复用",
+    "loop.5": "下次加载 Memory 和 Skill；工具按当前的连接重新绑定",
+    "fig.settle": "散乱的块排成一棵树：待确认的内容变成保留下来的结构",
+    "tiers.kicker": "能力如何叠加",
+    "tiers.h2": "需要时再往上加。不加也不会坏。",
+    "tiers.sub": "每一层都建在下一层上。缺了某一层，只会削弱那一层。没有 MCP、没有评分，内置技能和 Memory 依然有用。",
+    "t5b": "Trace + Score",
+    "t5": "用一份签署过的 Answer key 给每次运行打分",
+    "t4b": "MCP 工具",
+    "t4": "可选的实时工具，每次运行重新发现",
+    "t3b": "已确认的 Skills",
+    "t3": "你明确批准过的、可重复的做法",
+    "t2b": "Memory",
+    "t2": "项目事实在会话之间保留",
+    "t1b": "内置技能 + work/",
+    "t1": "开箱即用的 Research、Analyze、Brainstorm、Report",
+    "fig.stack": "五层叠起来的框：五个能力层级",
+    "start.kicker": "快速开始",
+    "start.h2": "两条命令，然后打开文件夹。",
+    "start.sub": "需要 Python 3.11+。只需安装一次 <code>agentzero</code> 命令，不用克隆仓库。",
+    "start.code": "<span class=\"c\"># 安装一次（pipx install 用法一样）</span>\nuv tool install git+https://github.com/jesselei1102-hue/agentzero\n\n<span class=\"c\"># 为你的工具建一个工作区：cursor | codex | claude</span>\nagentzero init ~/AgentZero-Workspace --harness claude",
+    "copy.idle": "复制",
+    "copy.done": "已复制",
+    "copy.fail": "请手动选择复制",
+    "s1b": "用日常语言布置任务。",
+    "s1": "日常工作不需要学新命令。",
+    "s2b": "随时说出事实。",
+    "s2": "“我们用毫米。”想撤回就说“忘掉那个”。",
+    "s3b": "回答待确认的事。",
+    "s3": "<code>./a0 memory review</code> 会把它们列成一句句话。",
+    "s4b": "交出参考资料。",
+    "s4": "标准和模板会变成 Knowledge，之后的对话也能用。",
+    "pr.kicker": "设计原则",
+    "pr.h2": "是约定，不是新的运行时。",
+    "pr.1b": "约定优先于运行时",
+    "pr.1": "适配到你现有的工具上。agent 循环仍然留在 Cursor、Codex 或 Claude Code 里。",
+    "pr.2b": "先确认再保留",
+    "pr.2": "你说“是”之前一直是待确认。复用时不能悄悄变差。",
+    "pr.3b": "看得见的文件",
+    "pr.3": "扁平的 YAML 和 Markdown，可以直接审阅。没有隐藏的控制面。",
+    "pr.4b": "与领域无关的内核",
+    "pr.4": "第一个验证不等于产品的边界。",
+    "pr.5b": "各层独立降级",
+    "pr.5": "跳过某一层，只少了那一层。",
+    "not.1": "<b>不是新的 agent 运行时。</b>LLM 的循环留在原处。",
+    "footer.credit": "插图来自 <a href=\"https://hairline.lucasmarkes.com\" style=\"text-decoration: underline;\">Hairline</a>",
+    "not.2": "<b>不是以 SDK 为先的产品。</b>文件和对话才是界面；想深入可以看 <code>src/</code>。",
+  };
+
+  // English lives in the markup; capture it once so switching back restores it.
+  const metaDesc = document.querySelector('meta[name="description"]');
+  const EN = {
+    "meta.description": metaDesc.content,
+    "copy.idle": "Copy", "copy.done": "Copied", "copy.fail": "Select to copy",
+  };
+  for (const el of document.querySelectorAll("[data-i18n]")) EN[el.dataset.i18n] ??= el.innerHTML;
+  for (const el of document.querySelectorAll("[data-i18n-label]")) EN[el.dataset.i18nLabel] = el.dataset.label;
+  for (const el of document.querySelectorAll("[data-i18n-aria]")) EN[el.dataset.i18nAria] = el.getAttribute("aria-label");
+  const DICT = { en: EN, zh: ZH };
+
+  let lang = "en";
+  const t = (key) => DICT[lang][key] ?? EN[key];
+  const figures = new Map();
+
+  function applyLang(next) {
+    lang = next === "zh" ? "zh" : "en";
+    document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+    metaDesc.content = t("meta.description");
+    for (const el of document.querySelectorAll("[data-i18n]")) el.innerHTML = t(el.dataset.i18n);
+    for (const el of document.querySelectorAll("[data-i18n-aria]")) el.setAttribute("aria-label", t(el.dataset.i18nAria));
+    for (const [el, fig] of figures) fig.update({ label: t(el.dataset.i18nLabel) });
+    for (const b of document.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+  }
+
+  function initialLang() {
+    const fromUrl = new URLSearchParams(location.search).get("lang");
+    if (fromUrl) return fromUrl;
+    try { const saved = localStorage.getItem("az-lang"); if (saved) return saved; } catch {}
+    return /^zh\b/i.test(navigator.language || "") ? "zh" : "en";
+  }
+
+  for (const b of document.querySelectorAll("[data-lang]")) {
+    b.addEventListener("click", () => {
+      applyLang(b.dataset.lang);
+      try { localStorage.setItem("az-lang", lang); } catch {}
+      const url = new URL(location.href);
+      url.searchParams.set("lang", lang);
+      history.replaceState(null, "", url);
+    });
+  }
+
+  const tierItems = [...document.querySelectorAll("#tier-list li")];
+  function lightTier(text) {
+    // Stack reads "fr 5" for the top frame and "fr 1" for the bottom, so frame n is tier n.
+    const n = parseInt(String(text).match(/\d+/)?.[0] ?? "", 10);
+    tierItems.forEach((li) => li.classList.toggle("on", Number(li.dataset.tier) === n));
+  }
+
+  for (const el of document.querySelectorAll("[data-figure]")) {
+    const name = el.dataset.figure;
+    const opts = { theme: "dark", play: true, label: el.dataset.label, intensity: 0.6 };
+    if (name === "stack") opts.onRead = lightTier;
+    figures.set(el, hairline[name](el, opts));
+  }
+
+  applyLang(initialLang());
+
+  for (const btn of document.querySelectorAll("[data-copy]")) {
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById(btn.dataset.copy).innerText
+        .split("\n").filter((l) => l && !l.startsWith("#")).join("\n");
+      try { await navigator.clipboard.writeText(text); btn.textContent = t("copy.done"); }
+      catch { btn.textContent = t("copy.fail"); }
+      setTimeout(() => (btn.textContent = t("copy.idle")), 1600);
+    });
+  }
+</script>
+</body>
+</html>
